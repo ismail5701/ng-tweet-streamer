@@ -7,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class StreamComponent implements OnInit {
 
+  tweets: string[] = ['','','','','','','','','','','','','','','','','','']
+
   constructor() { }
 
   ngOnInit(): void {
