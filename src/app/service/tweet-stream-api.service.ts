@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
 import { AddResponse, AddRequest, TweetHistoryDto, Tweet } from '../models/dto';
-
+import { Observable, timer } from 'rxjs';
+import { retry, share, switchMap } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -12,51 +11,32 @@ export class TweetStreamApiService {
   uri = 'http://localhost:8080';
 
   liveTweets: Tweet[] = [];
+  liveTweets$: Observable<Tweet>;
 
-  constructor(private http: HttpClient) { }
-
-  deleteRules(): Observable<any> {
-    return this.http.delete<any>(this.uri + '/rules')
-      .pipe(
-        catchError(this.handleError<any>('delete rules', null))
-      );
+  constructor(private http: HttpClient) {
+    // this.liveTweets$ = 
+    // of({}).pipe(
+    //   mergeMap(_ => this.stream),
+    //   tap(v => console.log(v)),
+    //   delay(1000),
+    //   repeat()
+    // );
+    
+    this.liveTweets$ = timer(1, 3000).pipe(
+      switchMap(() => this.stream),
+      retry(), 
+      share()
+ );
   }
 
-  addRules(payload: AddRequest): Observable<AddResponse> {
-    return this.http.post<[]>(this.uri + '/rules', payload)
-      .pipe(
-        catchError(this.handleError<any>('add rules', null))
-      );
-  }
+  private toTweet = (json: string): Tweet => JSON.parse(json); 
 
-  getHistory(page: number): Observable<TweetHistoryDto> {
-    return this.http.get<[]>(this.uri + '/history')
-      .pipe(
-        catchError(this.handleError<any>('get history', null))
-      );
-  }
+  deleteRules = (): Observable<any> => this.http.delete<any>(this.uri + '/rules');
 
-  stream(): Observable<any> {
-    return this.http.get(this.uri + '/stream').pipe(
-      catchError(this.handleError<any>('updateHero'))
-    );
-  }
+  addRules = (payload: AddRequest): Observable<AddResponse> => this.http.post<AddResponse>(this.uri + '/rules', payload);
 
-  private toTweet(json: string): Tweet {
-      return JSON.parse(json);
-  }
+  getHistory = (page: number): Observable<TweetHistoryDto> => this.http.get<TweetHistoryDto>(this.uri + '/history');
 
-/**
- * Handle Http operation that failed.
- * Let the app continue.
- * @param operation - name of the operation that failed
- * @param result - optional value to return as the observable result
- */
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(error);
-      // Let the app keep running by returning an empty result.
-      return of(result as T);
-    };
-  }
+  stream = (): Observable<any> => this.http.get(this.uri + '/live');
+
 }

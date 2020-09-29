@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TweetStreamApiService } from './service/tweet-stream-api.service';
 import { Add } from './models/dto';
+import { pipe } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'ng-tweet-streamer';
   followerList: string[] = [];
   trackList: string[] = [];
@@ -17,6 +19,14 @@ export class AppComponent {
   constructor(
     private tweetService: TweetStreamApiService
   ) { }
+
+  ngOnInit(): void {
+    this.tweetService.stream()
+    .subscribe(
+      pipe(
+        tap(v=>console.log(v))
+      ));
+  }
 
   addFollower(): void {
     if (this.follower === '') {
@@ -43,7 +53,7 @@ export class AppComponent {
       val => add.push({ tag: '', value: val })
     );
     this.tweetService.addRules({ add }).subscribe(
-      res => console.log(res)// TODO
+      res => console.log(res)// TODO error handle
     );
 
   }
