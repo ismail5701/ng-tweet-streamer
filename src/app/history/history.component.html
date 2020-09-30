@@ -1,17 +1,14 @@
-<mat-paginator [length]="100"
-              [pageSize]="20">
+<mat-paginator *ngIf="length > 20" [length]="length" [pageSize]="20" (page)="pageEvent($event)">
 </mat-paginator>
 <mat-card *ngFor="let item of tweets" class="tweet-card">
     <mat-card-header>
         <div mat-card-avatar class="header-image"></div>
-        <mat-card-title>Shiba Inu</mat-card-title>
-        <mat-card-subtitle>Dog Breed</mat-card-subtitle>
+        <mat-card-title>{{item.includes.users[0].name}}</mat-card-title>
+        <mat-card-subtitle>{{item.includes.users[0].username}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
         <p>
-            The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-            A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
-            bred for hunting.
+            {{item.data.text}}
         </p>
     </mat-card-content>
 </mat-card>

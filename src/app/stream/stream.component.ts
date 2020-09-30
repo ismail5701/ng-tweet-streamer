@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TweetStreamApiService } from '../service/tweet-stream-api.service';
 
 @Component({
   selector: 'app-stream',
@@ -7,9 +8,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class StreamComponent implements OnInit {
 
-  tweets: string[] = ['','','','','','','','','','','','','','','','','','']
-
-  constructor() { }
+  constructor(public tweetService: TweetStreamApiService) { }
 
   ngOnInit(): void {
   }

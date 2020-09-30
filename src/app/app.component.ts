@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TweetStreamApiService } from './service/tweet-stream-api.service';
 import { Add } from './models/dto';
-import { pipe } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -21,11 +19,6 @@ export class AppComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.tweetService.stream()
-    .subscribe(
-      pipe(
-        tap(v=>console.log(v))
-      ));
   }
 
   addFollower(): void {
@@ -45,6 +38,9 @@ export class AppComponent implements OnInit {
   }
 
   reset = () => {
+    if (this.followerList.length === 0 && this.trackList.length === 0) {
+      return;
+    }
     const add: Add[] = [];
     this.followerList.forEach(
       val => add.push({ tag: '', value: val })

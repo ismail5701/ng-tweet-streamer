@@ -30,10 +30,19 @@ export interface Add {
     tag: string;
 }
 
-export interface Tweet {
+export class Tweet {
+    id: number;
     data: Data;
     includes: Includes;
     matching_rules: MatchingRule[];
+
+    constructor(entity: TweetEntity) {
+        const _data = JSON.parse(entity.data);
+        this.id = entity.id ? entity.id : null;
+        this.data = _data.data;
+        this.includes = _data.includes;
+        this.matching_rules = _data.matching_rules;
+    }
 }
 
 export interface Data {
@@ -89,5 +98,10 @@ export interface Sort {
     sorted: boolean;
     unsorted: boolean;
     empty: boolean;
+}
+
+export interface TweetEntity {
+    id: number;
+    data: string;
 }
 
