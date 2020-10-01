@@ -2,8 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AddResponse, AddRequest, TweetHistoryDto, Tweet, TweetEntity } from '../models/dto';
 import { interval, Observable } from 'rxjs';
-import { map, retry, share, startWith, switchMap } from 'rxjs/operators';
-import { Queue } from '../models/Queue';
+import { retry, share, startWith, switchMap } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -11,11 +10,13 @@ export class TweetStreamApiService {
 
   uri = 'http://localhost:8080';
 
-  liveTweets = new Queue<Tweet>(20);
+  liveTweets: Tweet[] = [];
+  historyTweets: Tweet[];
+  historyLength = 0;
   count = 0;
 
   constructor(private http: HttpClient) {
-    interval(1000)
+    interval(3000)
       .pipe(
         startWith(0),
         switchMap(() => this.stream()),
@@ -24,14 +25,7 @@ export class TweetStreamApiService {
       )
       .subscribe(res => {
         console.log(`seconds - streaming`);
-        if (this.liveTweets.isEmpty()) {
-          this.liveTweets.enqueue(res);
-        } else {
-          const foundTweet = this.liveTweets.queue.find(x => x.id === res.id);
-          if (!foundTweet) {
-            this.liveTweets.enqueue(res);
-          }
-        }
+        this.liveTweets = res.map(v => new Tweet(v));
       });
   }
 
@@ -41,16 +35,22 @@ export class TweetStreamApiService {
 
   getHistory = (page: number): Observable<TweetHistoryDto> => this.http.get<TweetHistoryDto>(this.uri + `/history?page=${page}`);
 
-  stream = (): Observable<Tweet> => {
+  stream = (): Observable<TweetEntity[]> => {
     const headers = new HttpHeaders({
       'Cache-Control': 'no-cache, no-store, must-revalidate, post-check=0, pre-check=0',
       'Pragma': 'no-cache',
       'Expires': '0'
     });
-    return this.http.get<TweetEntity>(this.uri + '/live', { headers })
-      .pipe(
-        map(v => new Tweet(v))
-      );
+    return this.http.get<TweetEntity[]>(this.uri + '/live', { headers });
+  }
+
+  reloadHistory(): void {
+    this.getHistory(0)
+    .subscribe(
+      res => {
+        this.historyLength = res.totalElements;
+        this.historyTweets = res.content.map(v => JSON.parse(v.data));
+      });
   }
 
 }

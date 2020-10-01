@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Tweet } from '../models/dto';
 import { TweetStreamApiService } from '../service/tweet-stream-api.service';
@@ -8,30 +8,18 @@ import { TweetStreamApiService } from '../service/tweet-stream-api.service';
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss']
 })
-export class HistoryComponent implements OnInit {
-
-  tweets: Tweet[];
-  length = 0;
+export class HistoryComponent {
 
   constructor(
-    private tweetService: TweetStreamApiService
+    public tweetService: TweetStreamApiService
   ) { }
-
-  ngOnInit(): void {
-    this.tweetService.getHistory(0)
-      .subscribe(
-        res => {
-          this.length = res.totalElements;
-          this.tweets = res.content.map(v => JSON.parse(v.data));
-        });
-  }
 
   pageEvent = (event: PageEvent) => {
     this.tweetService.getHistory(event.pageIndex)
       .subscribe(
         res => {
-          this.length = res.totalElements;
-          this.tweets = res.content.map(v => JSON.parse(v.data));
+          this.tweetService.historyLength = res.totalElements;
+          this.tweetService.historyTweets = res.content.map(v => JSON.parse(v.data));
         });
   }
 

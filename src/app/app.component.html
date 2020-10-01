@@ -41,7 +41,7 @@
         <button mat-raised-button color="primary" (click)="clear()">Clear Rules</button>
     </mat-grid-tile>
 </mat-grid-list>
-<mat-tab-group mat-align-tabs="center">   
+<mat-tab-group mat-align-tabs="center" (selectedTabChange)="tabChange($event)">   
     <mat-tab label="Live">
         <app-stream></app-stream>
     </mat-tab>

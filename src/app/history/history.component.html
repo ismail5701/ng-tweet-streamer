@@ -1,6 +1,6 @@
-<mat-paginator *ngIf="length > 20" [length]="length" [pageSize]="20" (page)="pageEvent($event)">
+<mat-paginator *ngIf="tweetService?.historyLength > 20" [length]="tweetService?.historyLength" [pageSize]="20" (page)="pageEvent($event)">
 </mat-paginator>
-<mat-card *ngFor="let item of tweets" class="tweet-card">
+<mat-card *ngFor="let item of tweetService?.historyTweets" class="tweet-card">
     <mat-card-header>
         <div mat-card-avatar class="header-image"></div>
         <mat-card-title>{{item.includes.users[0].name}}</mat-card-title>

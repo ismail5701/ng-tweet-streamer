@@ -1,4 +1,4 @@
-<mat-card *ngFor="let item of tweetService?.liveTweets?.queue" class="tweet-card">
+<mat-card *ngFor="let item of tweetService?.liveTweets" class="tweet-card">
     <mat-card-header>
         <div mat-card-avatar class="header-image"></div>
         <mat-card-title>{{item.includes.users[0].name}}</mat-card-title>

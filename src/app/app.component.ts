@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TweetStreamApiService } from './service/tweet-stream-api.service';
 import { Add } from './models/dto';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-root',
@@ -55,9 +56,16 @@ export class AppComponent implements OnInit {
   }
 
   clear = () => {
-    this.tweetService.deleteRules();
+    this.tweetService.deleteRules().subscribe(
+      res =>  console.log(res)
+    );
     this.followerList = [];
     this.trackList = [];
   }
 
+  tabChange(event: MatTabChangeEvent): void {
+    if (event.index === 1) {
+      this.tweetService.reloadHistory();
+    }
+  }
 }
