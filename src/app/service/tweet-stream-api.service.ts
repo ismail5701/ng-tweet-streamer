@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AddResponse, AddRequest, TweetHistoryDto, Tweet, TweetEntity } from '../models/dto';
-import { interval, Observable } from 'rxjs';
-import { retry, share, startWith, switchMap } from 'rxjs/operators';
+
 import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
@@ -17,17 +17,6 @@ export class TweetStreamApiService {
   count = 0;
 
   constructor(private http: HttpClient) {
-    interval(3000)
-      .pipe(
-        startWith(0),
-        switchMap(() => this.stream()),
-        retry(),
-        share()
-      )
-      .subscribe(res => {
-        console.log(`seconds - streaming`);
-        this.liveTweets = res.map(v => new Tweet(v));
-      });
   }
 
   deleteRules = (): Observable<any> => this.http.delete<any>(this.uri + '/rules');

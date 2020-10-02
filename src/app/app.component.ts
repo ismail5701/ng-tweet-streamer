@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { TweetStreamApiService } from './service/tweet-stream-api.service';
-import { Add } from './models/dto';
+import { Add, Tweet } from './models/dto';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { interval } from 'rxjs';
+import { retry, share, startWith, switchMap } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-root',
@@ -16,10 +19,26 @@ export class AppComponent implements OnInit {
   track = '';
 
   constructor(
-    private tweetService: TweetStreamApiService
+    private tweetService: TweetStreamApiService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
+    this.clear();
+    this.snackBar.open('All Existing Rules Cleared!', null, {
+      duration: 3000,
+    });
+    interval(3000)
+      .pipe(
+        startWith(0),
+        switchMap(() => this.tweetService.stream()),
+        retry(),
+        share()
+      )
+      .subscribe(res => {
+        console.log(`seconds - streaming`);
+        this.tweetService.liveTweets = res.map(v => new Tweet(v));
+      });
   }
 
   addFollower(): void {
@@ -40,6 +59,9 @@ export class AppComponent implements OnInit {
 
   reset = () => {
     if (this.followerList.length === 0 && this.trackList.length === 0) {
+      this.snackBar.open('Please Add Follower or Track!', null, {
+        duration: 3000,
+      });
       return;
     }
     const add: Add[] = [];
@@ -50,14 +72,24 @@ export class AppComponent implements OnInit {
       val => add.push({ tag: '', value: val })
     );
     this.tweetService.addRules({ add }).subscribe(
-      res => console.log(res)// TODO error handle
+      res => {
+        console.log(res);// TODO error handle
+        this.snackBar.open('Rules updated', null, {
+          duration: 3000,
+        });
+      }
     );
 
   }
 
   clear = () => {
     this.tweetService.deleteRules().subscribe(
-      res =>  console.log(res)
+      res => {
+        console.log(res);
+        this.snackBar.open('Rules Cleared', null, {
+          duration: 3000,
+        });
+      }
     );
     this.followerList = [];
     this.trackList = [];
