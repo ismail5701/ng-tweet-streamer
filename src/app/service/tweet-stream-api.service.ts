@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import { AddResponse, AddRequest, TweetHistoryDto, Tweet, TweetEntity } from '../models/dto';
 import { interval, Observable } from 'rxjs';
 import { retry, share, startWith, switchMap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root'
 })
 export class TweetStreamApiService {
 
-  uri = 'http://localhost:8080';
+  uri = environment.endpoint;
 
   liveTweets: Tweet[] = [];
   historyTweets: Tweet[];
